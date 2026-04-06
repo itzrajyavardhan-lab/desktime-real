@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DeskTime Real — Your Laptop Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">DT</div>
+      <div>
+        <div class="logo-text">DeskTime Real</div>
+        <div class="logo-sub" id="hostnameLabel">Loading...</div>
+      </div>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Overview</div>
+        <div class="nav-item active" data-page="dashboard">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke-width="2"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" data-page="live">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Live Monitor
+          <span class="live-badge">LIVE</span>
+        </div>
+        <div class="nav-item" data-page="productivity">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 20V10M12 20V4M6 20v-6" stroke-width="2" stroke-linecap="round"/></svg>
+          Productivity
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Tracking</div>
+        <div class="nav-item" data-page="apps">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2" stroke-width="2"/><path d="M8 21h8M12 17v4" stroke-width="2" stroke-linecap="round"/></svg>
+          Apps & URLs
+          <span class="nav-badge" id="appCountBadge">0</span>
+        </div>
+        <div class="nav-item" data-page="processes">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" stroke-width="2"/></svg>
+          Processes
+        </div>
+        <div class="nav-item" data-page="timeline">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"/></svg>
+          Timeline
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Tools</div>
+        <div class="nav-item" data-page="pomodoro">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M12 6v6l3 3" stroke-width="2" stroke-linecap="round"/></svg>
+          Pomodoro
+        </div>
+        <div class="nav-item" data-page="goals">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke-width="2"/><circle cx="12" cy="12" r="2" stroke-width="2"/></svg>
+          Daily Goals
+        </div>
+        <div class="nav-item" data-page="system">
+          <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" stroke-width="2"/></svg>
+          System Info
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="conn-status" id="connStatus">
+        <span class="conn-dot" id="connDot"></span>
+        <span id="connText">Connecting...</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-date" id="topbarDate"></div>
+      <div class="topbar-icon" id="refreshBtn" title="Refresh">↻</div>
+      <div class="active-app-pill" id="activeAppPill">
+        <span class="active-dot"></span>
+        <span id="activeAppName">Loading...</span>
+      </div>
+      <button class="track-btn" id="trackBtn">⏸ Pause</button>
+    </div>
+
+    <div class="content" id="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stat-grid" id="statGrid"></div>
+        <div class="two-col">
+          <div class="section">
+            <div class="section-head">
+              <div>
+                <div class="section-title">CPU & Memory — Live</div>
+                <div class="section-sub">Real-time · 5s intervals</div>
+              </div>
+              <div class="legend">
+                <span class="leg"><span class="leg-dot" style="background:#0ea5e9"></span>CPU%</span>
+                <span class="leg"><span class="leg-dot" style="background:#22c55e"></span>RAM%</span>
+              </div>
+            </div>
+            <div style="position:relative;height:180px"><canvas id="liveChart"></canvas></div>
+          </div>
+          <div class="section">
+            <div class="section-head">
+              <div class="section-title">Today's App Usage</div>
+              <div class="section-sub">By time spent</div>
+            </div>
+            <div style="position:relative;height:180px"><canvas id="appPieChart"></canvas></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Top Apps — Today</div>
+            <div class="section-sub" id="todayTotal"></div>
+          </div>
+          <table class="app-table" id="dashAppsTable"><tr><td style="padding:20px;color:var(--text-2)">Collecting data... use your laptop normally.</td></tr></table>
+        </div>
+      </div>
+
+      <!-- LIVE MONITOR -->
+      <div class="page" id="page-live">
+        <div class="stat-grid" id="liveStatGrid"></div>
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Real-time System Monitor</div>
+            <div class="section-sub">Updates every 5 seconds from your laptop</div>
+          </div>
+          <div style="position:relative;height:260px"><canvas id="liveFullChart"></canvas></div>
+        </div>
+        <div class="two-col">
+          <div class="section">
+            <div class="section-head"><div class="section-title">Battery Status</div></div>
+            <div id="batteryInfo" style="padding:10px 0"></div>
+          </div>
+          <div class="section">
+            <div class="section-head"><div class="section-title">Network I/O</div></div>
+            <div id="networkInfo" style="padding:10px 0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTIVITY -->
+      <div class="page" id="page-productivity">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Hourly Productivity — Today</div>
+            <div class="section-sub">Real tracked app usage by hour</div>
+          </div>
+          <div style="position:relative;height:240px"><canvas id="hourlyChart"></canvas></div>
+        </div>
+        <div class="two-col">
+          <div class="section">
+            <div class="section-head"><div class="section-title">7-Day Trend</div></div>
+            <div style="position:relative;height:200px"><canvas id="weeklyChart"></canvas></div>
+          </div>
+          <div class="section">
+            <div class="section-head"><div class="section-title">Status Split</div></div>
+            <div style="position:relative;height:200px"><canvas id="statusPieChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPS -->
+      <div class="page" id="page-apps">
+        <div class="tabs" id="appsTabs">
+          <div class="tab active" data-filter="all">All</div>
+          <div class="tab" data-filter="productive">Productive</div>
+          <div class="tab" data-filter="unproductive">Unproductive</div>
+          <div class="tab" data-filter="neutral">Neutral</div>
+        </div>
+        <div class="section">
+          <table class="app-table" id="appsFullTable"></table>
+        </div>
+      </div>
+
+      <!-- PROCESSES -->
+      <div class="page" id="page-processes">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Running Processes — Real</div>
+            <div class="section-sub">Sorted by CPU usage · Live from your system</div>
+          </div>
+          <table class="app-table" id="processTable"></table>
+        </div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="page" id="page-timeline">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Session Log — Today</div>
+          </div>
+          <div id="sessionList"></div>
+        </div>
+        <div class="section" style="margin-top:16px">
+          <div class="section-head">
+            <div class="section-title">App Switch Timeline</div>
+            <div class="section-sub">Each block = one app usage period</div>
+          </div>
+          <div class="timeline-wrap">
+            <div class="timeline" id="appTimeline"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POMODORO -->
+      <div class="page" id="page-pomodoro">
+        <div class="two-col">
+          <div class="section" style="text-align:center">
+            <div class="section-title" style="margin-bottom:24px">Focus Timer</div>
+            <div class="pomo-ring">
+              <svg width="160" height="160" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="68" stroke="#bae6fd" stroke-width="10" fill="none"/>
+                <circle cx="80" cy="80" r="68" stroke="#0ea5e9" stroke-width="10" fill="none"
+                  stroke-dasharray="427.26" id="pomoDash" stroke-dashoffset="0"
+                  stroke-linecap="round" transform="rotate(-90 80 80)"
+                  style="transition:stroke-dashoffset .5s linear"/>
+              </svg>
+              <div class="pomo-center">
+                <div class="pomo-time" id="pomoDisplay">25:00</div>
+                <div class="pomo-label" id="pomoLabel">Focus Time</div>
+              </div>
+            </div>
+            <div class="pomo-controls">
+              <button class="pomo-btn secondary" onclick="resetPomo()">↺ Reset</button>
+              <button class="pomo-btn primary" id="pomoBtn" onclick="togglePomo()">▶ Start</button>
+            </div>
+            <div class="pomo-modes">
+              <button class="mode-btn active" id="mFocus" onclick="setMode('focus',this)">Focus 25m</button>
+              <button class="mode-btn" id="mShort" onclick="setMode('short',this)">Break 5m</button>
+              <button class="mode-btn" id="mLong" onclick="setMode('long',this)">Long 15m</button>
+            </div>
+            <div style="margin-top:16px;font-size:13px;color:var(--text-2)">Sessions today: <strong id="pomoCount" style="color:var(--sky-600)">0</strong></div>
+          </div>
+          <div class="section">
+            <div class="section-title" style="margin-bottom:16px">Session History</div>
+            <div id="pomoHistoryList" style="max-height:380px;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GOALS -->
+      <div class="page" id="page-goals">
+        <div class="section">
+          <div class="section-head">
+            <div class="section-title">Daily Goals</div>
+            <button class="track-btn" onclick="showAddGoal()">+ Add Goal</button>
+          </div>
+          <div id="goalsList"></div>
+        </div>
+        <div class="section" style="margin-top:16px">
+          <div class="section-title" style="margin-bottom:16px">Goal Progress</div>
+          <div style="position:relative;height:200px"><canvas id="goalsRadar"></canvas></div>
+        </div>
+      </div>
+
+      <!-- SYSTEM -->
+      <div class="page" id="page-system">
+        <div class="stat-grid" id="sysStatGrid"></div>
+        <div class="two-col">
+          <div class="section">
+            <div class="section-title" style="margin-bottom:14px">Disk Usage</div>
+            <div id="diskInfo"></div>
+          </div>
+          <div class="section">
+            <div class="section-title" style="margin-bottom:14px">System Info</div>
+            <div id="osInfo"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD GOAL MODAL -->
+<div class="modal-overlay" id="modalOverlay" style="display:none">
+  <div class="modal">
+    <div class="modal-title">Add Daily Goal</div>
+    <input type="text" id="goalText" placeholder="e.g. Work 8 productive hours" style="width:100%;margin-bottom:10px"/>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input type="number" id="goalTarget" placeholder="Target (e.g. 8)" style="flex:1"/>
+      <input type="text" id="goalUnit" placeholder="Unit (hrs/% /min)" style="flex:1"/>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="pomo-btn secondary" onclick="closeModal()">Cancel</button>
+      <button class="pomo-btn primary" onclick="submitGoal()">Add Goal</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
